@@ -5,6 +5,7 @@ const userSchema = mongoose.Schema({
   email: String,
   password: String,
   token: String,
+  departement: String,
   orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "orders" }],
 });
 
