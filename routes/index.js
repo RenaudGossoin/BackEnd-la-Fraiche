@@ -104,16 +104,8 @@ router.get("/articles", async function (req, res, next) {
   var user = await UserModel.findOne({ token: req.query.token });
   var cities = await FarmerModel.find({ departement: req.query.departement });
 
-  if (user != null) {
-    result = await FarmerModel.find({
-      departement: user.departement,
-    })
-      .populate("articles")
-      .exec();
-    for (let i = 0; i < result.length; i++) {
-      articles.push(result[i].articles);
-    }
-  } else if (user == null && cities != null) {
+ 
+ if (cities != null) {
     result = await FarmerModel.find({
       departement: req.query.departement,
     })
@@ -121,12 +113,11 @@ router.get("/articles", async function (req, res, next) {
       .exec();
 
     for (let i = 0; i < result.length; i++) {
-      articles.push(result[i].articles);
+      articles =[...articles,...result[i].articles]
     }
   }
   console.log(articles);
   console.log(cities);
-
   res.json({ articles, cities });
 });
 
