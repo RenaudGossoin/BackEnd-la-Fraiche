@@ -6,7 +6,7 @@ var orderSchema = mongoose.Schema({
   date_insert: Date,
   date_shipment: Date,
   articles: [{ type: mongoose.Schema.Types.ObjectId, ref: "articles" }],
-  locker: [{ type: mongoose.Schema.Types.ObjectId, ref: "lockers" }],
+  locker: { type: mongoose.Schema.Types.ObjectId, ref: "lockers" },
 });
 var OrderModel = mongoose.model("orders", orderSchema);
 

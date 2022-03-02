@@ -125,8 +125,84 @@ router.get("/articles", async function (req, res, next) {
     }
   }
   console.log(articles);
+  console.log(cities);
 
-  res.json({ articles });
+  res.json({ articles, cities });
+});
+
+// router.post("/orders", async function (req, res, next) {
+//   var result = false;
+
+//   var user = await UserModel.findOne({ token: req.body.token });
+
+//   if (user != null) {
+//     var newOrder = new OrderModel({
+//       totalOrder: req.body.totalorder,
+//       shippingCost: req.body.shippingCost,
+//       date_insert: req.body.date_insert,
+//       date_shipment: req.body.date_shipment,
+//       articles: req.body.articles,
+//       locker: req.body.locker,
+//     });
+
+//     var orderSave = await newOrder.save();
+
+//     if (orderSave) {
+//       result = true;
+//     }
+
+//     var user = await UserModel.updateOne(
+//       { token: req.body.token },
+//       { orders: orderSave }
+//     );
+//     console.log(orderSave);
+//   }
+
+//   res.json({ result });
+// });
+
+/*recherche dans la bdd des lockers correspondant au departement de l'utilisateur */
+router.get("/lockers", async function (req, res, next) {
+  var result = [];
+
+  var data = await LockerModel.find({ departement: req.query.departement });
+
+  if (data != null) {
+    result = await LockerModel.find({
+      departement: req.query.departement,
+    });
+  }
+  //console.log(result);
+
+  res.json({ result });
+});
+
+/*route pour afficher les infos de l'user et ses commandes dans la page account */
+router.get("/account", async function (req, res, next) {
+  var orders = [];
+  let info;
+  var user = await UserModel.findOne({ token: req.query.token });
+
+  if (user != null) {
+    info = await UserModel.find({ token: req.query.token });
+    result = await UserModel.find({
+      token: req.query.token,
+    })
+      .populate("orders")
+      .exec();
+    for (let i = 0; i < result.length; i++) {
+      orders.push(result[i].orders);
+    }
+  }
+  console.log(orders);
+  console.log(info);
+
+  res.json({ orders, info });
+});
+
+/*Route pour afficher le détail d'un produit dans la page detail Screen */
+router.get("/detail-product", async function (req, res, next) {
+  res.json({ result });
 });
 
 module.exports = router;
