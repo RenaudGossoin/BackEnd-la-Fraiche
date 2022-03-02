@@ -9,5 +9,5 @@ var UserModel = require("../models/users");
 router.get("/", function (req, res, next) {
   res.render("index", { title: "Express" });
 });
-
+//test
 module.exports = router;
