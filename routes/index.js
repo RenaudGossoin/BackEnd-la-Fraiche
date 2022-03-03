@@ -21,7 +21,7 @@ router.post("/sign-up", async function (req, res, next) {
   var token = null;
 
   const data = await UserModel.findOne({
-    email: req.body.email,
+    email: req.body.email.toLowerCase(),
   });
 
   if (data != null) {
@@ -40,8 +40,8 @@ router.post("/sign-up", async function (req, res, next) {
   if (error.length == 0) {
     var hash = bcrypt.hashSync(req.body.password, 10);
     var newUser = new UserModel({
-      username: req.body.username,
-      email: req.body.email,
+      username: req.body.username.toLowerCase(),
+      email: req.body.email.toLowerCase(),
       password: hash,
       departement: req.body.departement,
       token: uid2(32),
@@ -130,36 +130,36 @@ router.get("/articles", async function (req, res, next) {
   res.json({ articles, cities });
 });
 
-// router.post("/orders", async function (req, res, next) {
-//   var result = false;
+router.post("/orders", async function (req, res, next) {
+  var result = false;
 
-//   var user = await UserModel.findOne({ token: req.body.token });
+  var user = await UserModel.findOne({ token: req.body.token });
 
-//   if (user != null) {
-//     var newOrder = new OrderModel({
-//       totalOrder: req.body.totalorder,
-//       shippingCost: req.body.shippingCost,
-//       date_insert: req.body.date_insert,
-//       date_shipment: req.body.date_shipment,
-//       articles: req.body.articles,
-//       locker: req.body.locker,
-//     });
+  if (user != null) {
+    var newOrder = new OrderModel({
+      totalOrder: req.body.totalorder,
+      shippingCost: req.body.shippingCost,
+      date_insert: req.body.date_insert,
+      date_shipment: req.body.date_shipment,
+      articles: req.body.articles,
+      locker: req.body.locker,
+    });
 
-//     var orderSave = await newOrder.save();
+    var orderSave = await newOrder.save();
 
-//     if (orderSave) {
-//       result = true;
-//     }
+    if (orderSave) {
+      result = true;
+    }
 
-//     var user = await UserModel.updateOne(
-//       { token: req.body.token },
-//       { orders: orderSave }
-//     );
-//     console.log(orderSave);
-//   }
+    var user = await UserModel.updateOne(
+      { token: req.body.token },
+      { orders: orderSave }
+    );
+    console.log(orderSave);
+  }
 
-//   res.json({ result });
-// });
+  res.json({ result });
+});
 
 /*recherche dans la bdd des lockers correspondant au departement de l'utilisateur */
 router.get("/lockers", async function (req, res, next) {
@@ -202,7 +202,16 @@ router.get("/account", async function (req, res, next) {
 
 /*Route pour afficher le détail d'un produit dans la page detail Screen */
 router.get("/detail-product", async function (req, res, next) {
-  res.json({ result });
+  var detailArticle;
+
+  var data = await ArticleModel.findById(req.query.id);
+
+  if (data != null) {
+    detailArticle = await ArticleModel.findById(req.query.id);
+  }
+  console.log(detailArticle);
+
+  res.json({ detailArticle });
 });
 
 module.exports = router;
