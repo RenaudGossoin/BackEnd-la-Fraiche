@@ -72,7 +72,7 @@ router.post("/sign-in", async function (req, res, next) {
 
   if (error.length == 0) {
     const user = await UserModel.findOne({
-      email: req.body.email,
+      email: req.body.email.toLowerCase(),
     });
 
     if (user) {
@@ -104,8 +104,7 @@ router.get("/articles", async function (req, res, next) {
   var user = await UserModel.findOne({ token: req.query.token });
   var cities = await FarmerModel.find({ departement: req.query.departement });
 
- 
- if (cities != null) {
+  if (cities != null) {
     result = await FarmerModel.find({
       departement: req.query.departement,
     })
@@ -113,7 +112,7 @@ router.get("/articles", async function (req, res, next) {
       .exec();
 
     for (let i = 0; i < result.length; i++) {
-      articles =[...articles,...result[i].articles]
+      articles = [...articles, ...result[i].articles];
     }
   }
   console.log(articles);
