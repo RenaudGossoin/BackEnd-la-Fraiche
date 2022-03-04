@@ -103,8 +103,8 @@ router.get("/articles", async function (req, res, next) {
   let result = [];
   var user = await UserModel.findOne({ token: req.query.token });
   var cities = await FarmerModel.find({ departement: req.query.departement });
-
- 
+  var categorieName = await ArticleModel.find({categorie:req.query.categorie})
+ //console.log(req.query.categorie)
  if (cities != null) {
     result = await FarmerModel.find({
       departement: req.query.departement,
@@ -112,13 +112,19 @@ router.get("/articles", async function (req, res, next) {
       .populate("articles")
       .exec();
 
+            
     for (let i = 0; i < result.length; i++) {
-      articles =[...articles,...result[i].articles]
+    articles =[...articles,...result[i].articles]
     }
   }
-  console.log(articles);
-  console.log(cities);
-  res.json({ articles, cities });
+ 
+
+  var articlesFilter = articles.filter(element=>element.categorie === req.query.categorie)
+
+  
+  //console.log("test: ", articlesFilter);
+  
+  res.json({ articlesFilter, cities });
 });
 
 // router.post("/orders", async function (req, res, next) {
