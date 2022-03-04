@@ -105,9 +105,20 @@ router.get("/articles", async function (req, res, next) {
   var cities = await FarmerModel.find({ departement: req.query.departement });
   var categorieName = await ArticleModel.find({categorie:req.query.categorie})
 
+  if (user != null) {
+    result = await FarmerModel.find({
+      departement: user.departement,
+    })
+      .populate("articles")
+      .exec();
 
+            
+    for (let i = 0; i < result.length; i++) {
+    articles =[...articles,...result[i].articles]
+    }
+  }
  
- //console.log(req.query.categorie)
+ console.log("tout le req",req.query)
  if (cities != null) {
     result = await FarmerModel.find({
       departement: req.query.departement,
