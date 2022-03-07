@@ -103,14 +103,10 @@ router.get("/articles", async function (req, res, next) {
   let result = [];
   var user = await UserModel.findOne({ token: req.query.token });
   var cities = await FarmerModel.find({ departement: req.query.departement });
-<<<<<<< HEAD
   var categorieName = await ArticleModel.find({
     categorie: req.query.categorie,
   });
-=======
-  var categorieName = await ArticleModel.find({categorie:req.query.categorie})
 
->>>>>>> 99cf05cbfaf2b658ad45aed4db55e2afc0fce614
   if (user != null) {
     result = await FarmerModel.find({
       departement: user.departement,
@@ -118,26 +114,23 @@ router.get("/articles", async function (req, res, next) {
       .populate("articles")
       .exec();
 
-            
     for (let i = 0; i < result.length; i++) {
-    articles =[...articles,...result[i].articles]
+      articles = [...articles, ...result[i].articles];
     }
   }
- 
- console.log("tout le req",req.query)
- if (cities != null) {
+
+  console.log("tout le req", req.query);
+  if (cities != null) {
     result = await FarmerModel.find({
       departement: req.query.departement,
     })
       .populate("articles")
       .exec();
 
-            
     for (let i = 0; i < result.length; i++) {
-    articles =[...articles,...result[i].articles]
+      articles = [...articles, ...result[i].articles];
     }
   }
-<<<<<<< HEAD
   var articlesFilter = articles.filter(
     (element) => element.categorie === req.query.categorie
   );
@@ -145,16 +138,6 @@ router.get("/articles", async function (req, res, next) {
   //console.log("test: ", articlesFilter);
 
   res.json({ articlesFilter, cities, user });
-=======
- 
-
-  var articlesFilter = articles.filter(element=>element.categorie === req.query.categorie)
-
-  
-  //console.log("test: ", articlesFilter);
-  
-  res.json({ articlesFilter, cities });
->>>>>>> 99cf05cbfaf2b658ad45aed4db55e2afc0fce614
 });
 
 router.post("/orders", async function (req, res, next) {
