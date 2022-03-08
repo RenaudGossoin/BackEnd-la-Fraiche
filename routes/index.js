@@ -187,14 +187,15 @@ router.post("/orders", async function (req, res, next) {
 router.get("/lockers", async function (req, res, next) {
   var result = [];
 
+  var user = await UserModel.findOne({ token: req.query.token });
   var data = await LockerModel.find({ departement: req.query.departement });
-
-  if (data != null) {
+  console.log(user);
+  if (user != null) {
     result = await LockerModel.find({
-      departement: req.query.departement,
+      departement: user.departement,
     });
   }
-  //console.log(result);
+  console.log(result);
 
   res.json({ result });
 });
