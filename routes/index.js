@@ -195,7 +195,8 @@ router.get("/lockers", async function (req, res, next) {
       departement: user.departement,
     });
   }
-  console.log(result);
+  //console.log(result);
+  //console.log(typeof result[0].longitude);
 
   res.json({ result });
 });
