@@ -6,8 +6,11 @@ var LockerModel = require("../models/lockers");
 var OrderModel = require("../models/orders");
 var UserModel = require("../models/users");
 
+
+
 var uid2 = require("uid2");
 var bcrypt = require("bcrypt");
+/*test*/
 /* GET home page. */
 router.get("/", function (req, res, next) {
   res.render("index", { title: "Express" });
@@ -236,5 +239,8 @@ router.get("/user-info", async function (req, res, next) {
 
   res.json({ detailUser });
 });
+
+
+
 
 module.exports = router;
