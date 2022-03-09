@@ -21,7 +21,7 @@ router.post("/sign-up", async function (req, res, next) {
   var token = null;
 
   const data = await UserModel.findOne({
-    email: req.body.email,
+    email: req.body.email.toLowerCase(),
   });
 
   if (data != null) {
@@ -40,8 +40,8 @@ router.post("/sign-up", async function (req, res, next) {
   if (error.length == 0) {
     var hash = bcrypt.hashSync(req.body.password, 10);
     var newUser = new UserModel({
-      username: req.body.username,
-      email: req.body.email,
+      username: req.body.username.toLowerCase(),
+      email: req.body.email.toLowerCase(),
       password: hash,
       departement: req.body.departement,
       token: uid2(32),
@@ -72,7 +72,7 @@ router.post("/sign-in", async function (req, res, next) {
 
   if (error.length == 0) {
     const user = await UserModel.findOne({
-      email: req.body.email,
+      email: req.body.email.toLowerCase(),
     });
 
     if (user) {
@@ -103,6 +103,9 @@ router.get("/articles", async function (req, res, next) {
   let result = [];
   var user = await UserModel.findOne({ token: req.query.token });
   var cities = await FarmerModel.find({ departement: req.query.departement });
+  var categorieName = await ArticleModel.find({
+    categorie: req.query.categorie,
+  });
 
   if (user != null) {
     result = await FarmerModel.find({
@@ -110,10 +113,14 @@ router.get("/articles", async function (req, res, next) {
     })
       .populate("articles")
       .exec();
+
     for (let i = 0; i < result.length; i++) {
-      articles.push(result[i].articles);
+      articles = [...articles, ...result[i].articles];
     }
-  } else if (user == null && cities != null) {
+  }
+
+  console.log("tout le req", req.query);
+  if (cities != null) {
     result = await FarmerModel.find({
       departement: req.query.departement,
     })
@@ -121,58 +128,75 @@ router.get("/articles", async function (req, res, next) {
       .exec();
 
     for (let i = 0; i < result.length; i++) {
-      articles.push(result[i].articles);
+      articles = [...articles, ...result[i].articles];
     }
   }
-  console.log(articles);
-  console.log(cities);
+  var articlesFilter = articles.filter(
+    (element) => element.categorie === req.query.categorie
+  );
 
-  res.json({ articles, cities });
+  //console.log("test: ", articlesFilter);
+
+  res.json({ articlesFilter, cities, user });
 });
 
-// router.post("/orders", async function (req, res, next) {
-//   var result = false;
+router.post("/orders", async function (req, res, next) {
+  var result = false;
+  var response = false;
+  var orderNumber = Math.floor(Math.random() * Math.floor(1000000) + 1);
+  var shippingCost = 5;
+  console.log(orderNumber);
 
-//   var user = await UserModel.findOne({ token: req.body.token });
+  var user = await UserModel.findOne({ token: req.body.token });
+  // console.log("infouser", user.orders);
 
-//   if (user != null) {
-//     var newOrder = new OrderModel({
-//       totalOrder: req.body.totalorder,
-//       shippingCost: req.body.shippingCost,
-//       date_insert: req.body.date_insert,
-//       date_shipment: req.body.date_shipment,
-//       articles: req.body.articles,
-//       locker: req.body.locker,
-//     });
+  if (user != null) {
+    var newOrder = new OrderModel({
+      OrderNumber: orderNumber,
+      totalOrder: req.body.totalOrder,
+      shippingCost: shippingCost,
+      date_insert: req.body.date_insert,
+      date_shipment: req.body.date_shipment,
+      articles: req.body.articles,
+      locker: req.body.locker,
+    });
 
-//     var orderSave = await newOrder.save();
+    var orderSave = await newOrder.save();
 
-//     if (orderSave) {
-//       result = true;
-//     }
-
-//     var user = await UserModel.updateOne(
-//       { token: req.body.token },
-//       { orders: orderSave }
-//     );
-//     console.log(orderSave);
-//   }
-
-//   res.json({ result });
-// });
+    if (orderSave) {
+      result = true;
+    }
+    console.log("order", orderSave);
+    //il faut push order dans models
+    if (result) {
+      user.orders.push(orderSave._id);
+      response = true;
+      // console.log("orderscopfinal", user);
+      await user.save();
+      res.json({ user, response });
+    } else {
+      res.json(err.message);
+    }
+    //console.log("answer", response);
+    //console.log("detail", user);
+  } else {
+    res.json("Something went wrong");
+  }
+});
 
 /*recherche dans la bdd des lockers correspondant au departement de l'utilisateur */
 router.get("/lockers", async function (req, res, next) {
   var result = [];
 
+  var user = await UserModel.findOne({ token: req.query.token });
   var data = await LockerModel.find({ departement: req.query.departement });
-
-  if (data != null) {
+  console.log(user);
+  if (user != null) {
     result = await LockerModel.find({
-      departement: req.query.departement,
+      departement: user.departement,
     });
   }
-  //console.log(result);
+  console.log(result);
 
   res.json({ result });
 });
@@ -190,19 +214,27 @@ router.get("/account", async function (req, res, next) {
     })
       .populate("orders")
       .exec();
+
     for (let i = 0; i < result.length; i++) {
-      orders.push(result[i].orders);
+      orders = [...orders, ...result[i].orders];
     }
   }
-  console.log(orders);
-  console.log(info);
+  console.log("orders", orders);
+  //console.log("info", info[0].username);
 
   res.json({ orders, info });
 });
 
 /*Route pour afficher le détail d'un produit dans la page detail Screen */
-router.get("/detail-product", async function (req, res, next) {
-  res.json({ result });
+router.get("/user-info", async function (req, res, next) {
+  var data = await UserModel.findOne({ token: req.query.token });
+
+  if (data != null) {
+    detailUser = await UserModel.findOne({ token: req.query.token });
+  }
+  console.log(detailUser);
+
+  res.json({ detailUser });
 });
 
 module.exports = router;
