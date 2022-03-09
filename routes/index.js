@@ -144,6 +144,7 @@ router.post("/orders", async function (req, res, next) {
   var result = false;
   var response = false;
   var orderNumber = Math.floor(Math.random() * Math.floor(1000000) + 1);
+  var shippingCost = 5;
   console.log(orderNumber);
 
   var user = await UserModel.findOne({ token: req.body.token });
@@ -153,7 +154,7 @@ router.post("/orders", async function (req, res, next) {
     var newOrder = new OrderModel({
       OrderNumber: orderNumber,
       totalOrder: req.body.totalOrder,
-      shippingCost: req.body.shippingCost,
+      shippingCost: shippingCost,
       date_insert: req.body.date_insert,
       date_shipment: req.body.date_shipment,
       articles: req.body.articles,
@@ -165,7 +166,7 @@ router.post("/orders", async function (req, res, next) {
     if (orderSave) {
       result = true;
     }
-    // console.log("order", orderSave);
+    console.log("order", orderSave);
     //il faut push order dans models
     if (result) {
       user.orders.push(orderSave._id);
@@ -195,8 +196,7 @@ router.get("/lockers", async function (req, res, next) {
       departement: user.departement,
     });
   }
-  //console.log(result);
-  //console.log(typeof result[0].longitude);
+  console.log(result);
 
   res.json({ result });
 });
