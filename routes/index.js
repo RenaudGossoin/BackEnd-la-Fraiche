@@ -104,7 +104,7 @@ router.get("/articles", async function (req, res, next) {
   var user = await UserModel.findOne({ token: req.query.token });
   var cities = await FarmerModel.find({ departement: req.query.departement });
   var categorieName = await ArticleModel.find({categorie:req.query.categorie})
-
+//test commentaire
   if (user != null) {
     result = await FarmerModel.find({
       departement: user.departement,
