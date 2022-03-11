@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 var orderSchema = mongoose.Schema({
+  OrderNumber: String,
   totalOrder: Number,
   shippingCost: Number,
   date_insert: Date,

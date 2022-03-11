@@ -8,6 +8,8 @@ var articleSchema = mongoose.Schema({
   nutriscore: String,
   astuce: String,
   categorie: String,
+  quantity: Number,
+  mesurement: String,
 });
 var ArticleModel = mongoose.model("articles", articleSchema);
 

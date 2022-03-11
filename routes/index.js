@@ -6,8 +6,11 @@ var LockerModel = require("../models/lockers");
 var OrderModel = require("../models/orders");
 var UserModel = require("../models/users");
 
+
+
 var uid2 = require("uid2");
 var bcrypt = require("bcrypt");
+/*test*/
 /* GET home page. */
 router.get("/", function (req, res, next) {
   res.render("index", { title: "Express" });
@@ -112,44 +115,47 @@ router.get("/articles", async function (req, res, next) {
       .populate("articles")
       .exec();
 
-            
     for (let i = 0; i < result.length; i++) {
-    articles =[...articles,...result[i].articles]
+      articles = [...articles, ...result[i].articles];
     }
   }
- 
- console.log("tout le req",req.query)
- if (cities != null) {
+
+  console.log("tout le req", req.query);
+  if (cities != null) {
     result = await FarmerModel.find({
       departement: req.query.departement,
     })
       .populate("articles")
       .exec();
 
-            
     for (let i = 0; i < result.length; i++) {
-    articles =[...articles,...result[i].articles]
+      articles = [...articles, ...result[i].articles];
     }
   }
- 
+  var articlesFilter = articles.filter(
+    (element) => element.categorie === req.query.categorie
+  );
 
-  var articlesFilter = articles.filter(element=>element.categorie === req.query.categorie)
-
-  
   //console.log("test: ", articlesFilter);
-  
-  res.json({ articlesFilter, cities });
+
+  res.json({ articlesFilter, cities, user });
 });
 
 router.post("/orders", async function (req, res, next) {
   var result = false;
+  var response = false;
+  var orderNumber = Math.floor(Math.random() * Math.floor(1000000) + 1);
+  var shippingCost = 5;
+  console.log(orderNumber);
 
   var user = await UserModel.findOne({ token: req.body.token });
+  // console.log("infouser", user.orders);
 
   if (user != null) {
     var newOrder = new OrderModel({
-      totalOrder: req.body.totalorder,
-      shippingCost: req.body.shippingCost,
+      OrderNumber: orderNumber,
+      totalOrder: req.body.totalOrder,
+      shippingCost: shippingCost,
       date_insert: req.body.date_insert,
       date_shipment: req.body.date_shipment,
       articles: req.body.articles,
@@ -161,29 +167,37 @@ router.post("/orders", async function (req, res, next) {
     if (orderSave) {
       result = true;
     }
-
-    var user = await UserModel.updateOne(
-      { token: req.body.token },
-      { orders: orderSave }
-    );
-    console.log(orderSave);
+    console.log("order", orderSave);
+    //il faut push order dans models
+    if (result) {
+      user.orders.push(orderSave._id);
+      response = true;
+      // console.log("orderscopfinal", user);
+      await user.save();
+      res.json({ user, response });
+    } else {
+      res.json(err.message);
+    }
+    //console.log("answer", response);
+    //console.log("detail", user);
+  } else {
+    res.json("Something went wrong");
   }
-
-  res.json({ result });
 });
 
 /*recherche dans la bdd des lockers correspondant au departement de l'utilisateur */
 router.get("/lockers", async function (req, res, next) {
   var result = [];
 
+  var user = await UserModel.findOne({ token: req.query.token });
   var data = await LockerModel.find({ departement: req.query.departement });
-
-  if (data != null) {
+  console.log(user);
+  if (user != null) {
     result = await LockerModel.find({
-      departement: req.query.departement,
+      departement: user.departement,
     });
   }
-  //console.log(result);
+  console.log(result);
 
   res.json({ result });
 });
@@ -201,28 +215,30 @@ router.get("/account", async function (req, res, next) {
     })
       .populate("orders")
       .exec();
+
     for (let i = 0; i < result.length; i++) {
-      orders.push(result[i].orders);
+      orders = [...orders, ...result[i].orders];
     }
   }
-  console.log(orders);
-  console.log(info);
+  console.log("orders", orders);
+  //console.log("info", info[0].username);
 
   res.json({ orders, info });
 });
 
 /*Route pour afficher le détail d'un produit dans la page detail Screen */
-router.get("/detail-product", async function (req, res, next) {
-  var detailArticle;
-
-  var data = await ArticleModel.findById(req.query.id);
+router.get("/user-info", async function (req, res, next) {
+  var data = await UserModel.findOne({ token: req.query.token });
 
   if (data != null) {
-    detailArticle = await ArticleModel.findById(req.query.id);
+    detailUser = await UserModel.findOne({ token: req.query.token });
   }
-  console.log(detailArticle);
+  console.log(detailUser);
 
-  res.json({ detailArticle });
+  res.json({ detailUser });
 });
+
+
+
 
 module.exports = router;

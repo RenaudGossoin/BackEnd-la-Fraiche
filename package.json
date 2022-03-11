@@ -8,12 +8,14 @@
   "dependencies": {
     "bcrypt": "^5.0.1",
     "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
     "debug": "~2.6.9",
     "ejs": "~2.6.1",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "mongoose": "^6.2.3",
     "morgan": "~1.9.1",
+    "stripe": "^8.207.0",
     "uid2": "^1.0.0"
   }
 }
