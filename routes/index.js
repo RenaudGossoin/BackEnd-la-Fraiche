@@ -6,8 +6,6 @@ var LockerModel = require("../models/lockers");
 var OrderModel = require("../models/orders");
 var UserModel = require("../models/users");
 
-
-
 var uid2 = require("uid2");
 var bcrypt = require("bcrypt");
 /*test*/
@@ -106,8 +104,10 @@ router.get("/articles", async function (req, res, next) {
   let result = [];
   var user = await UserModel.findOne({ token: req.query.token });
   var cities = await FarmerModel.find({ departement: req.query.departement });
-  var categorieName = await ArticleModel.find({categorie:req.query.categorie})
-//test commentaire
+  var categorieName = await ArticleModel.find({
+    categorie: req.query.categorie,
+  });
+  //test commentaire
   if (user != null) {
     result = await FarmerModel.find({
       departement: user.departement,
@@ -167,7 +167,7 @@ router.post("/orders", async function (req, res, next) {
     if (orderSave) {
       result = true;
     }
-    console.log("order", orderSave);
+    console.log("typeof", orderSave.date_insert);
     //il faut push order dans models
     if (result) {
       user.orders.push(orderSave._id);
@@ -237,8 +237,5 @@ router.get("/user-info", async function (req, res, next) {
 
   res.json({ detailUser });
 });
-
-
-
 
 module.exports = router;
