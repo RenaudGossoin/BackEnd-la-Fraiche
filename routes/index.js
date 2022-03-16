@@ -147,9 +147,12 @@ router.post("/orders", async function (req, res, next) {
   var orderNumber = Math.floor(Math.random() * Math.floor(1000000) + 1);
   var shippingCost = 5;
   console.log(orderNumber);
+  var articlesarray = [];
 
   var user = await UserModel.findOne({ token: req.body.token });
   // console.log("infouser", user.orders);
+  articlesarray = req.body.articles.split(",");
+  console.log("articlesarray", articlesarray);
 
   if (user != null) {
     var newOrder = new OrderModel({
@@ -158,7 +161,7 @@ router.post("/orders", async function (req, res, next) {
       shippingCost: shippingCost,
       date_insert: req.body.date_insert,
       date_shipment: req.body.date_shipment,
-      articles: req.body.articles,
+      articles: articlesarray,
       locker: req.body.locker,
     });
 
@@ -167,7 +170,7 @@ router.post("/orders", async function (req, res, next) {
     if (orderSave) {
       result = true;
     }
-    console.log("typeof", orderSave.date_insert);
+    console.log("ordersave", orderSave);
     //il faut push order dans models
     if (result) {
       user.orders.push(orderSave._id);
